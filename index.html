@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Make5Bil 포트폴리오</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;padding:20px;font-size:14px;}
+h1{font-size:20px;font-weight:600;margin-bottom:2px;}
+.sub{font-size:12px;color:#999;margin-bottom:18px;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.metric{background:#fff;border-radius:10px;padding:14px 16px;border:1px solid #eee;}
+.ml{font-size:11px;color:#999;margin-bottom:5px;}
+.mv{font-size:19px;font-weight:600;}
+.ms{font-size:11px;color:#bbb;margin-top:3px;}
+.pos{color:#c0392b;} .neg{color:#2980b9;} .neu{color:#1a1a1a;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.panel{background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 20px;}
+.panel-title{font-size:13px;color:#999;margin-bottom:10px;}
+.goal-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+.goal-pct{font-size:22px;font-weight:700;}
+.goal-remain{font-size:12px;color:#999;margin-top:2px;text-align:right;}
+.track{height:12px;background:#f0f0f0;border-radius:6px;overflow:hidden;margin-bottom:8px;}
+.fill{height:100%;border-radius:6px;transition:width .4s;}
+.track-labels{display:flex;justify-content:space-between;font-size:11px;color:#bbb;}
+.margin-big{font-size:38px;font-weight:700;margin-bottom:4px;}
+.margin-formula{font-size:11px;color:#bbb;margin-bottom:10px;line-height:1.6;}
+.mc-bar-wrap{height:10px;background:#f0f0f0;border-radius:5px;overflow:hidden;margin-bottom:8px;}
+.mc-bar{height:100%;border-radius:5px;transition:width .4s;}
+.levels{display:flex;gap:12px;font-size:11px;}
+.levels span{display:flex;align-items:center;gap:4px;color:#bbb;}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+.badge-d{background:#fdecea;color:#c0392b;font-size:11px;padding:3px 9px;border-radius:5px;font-weight:600;display:inline-block;}
+.badge-w{background:#fef9e7;color:#d68910;font-size:11px;padding:3px 9px;border-radius:5px;font-weight:600;display:inline-block;}
+.badge-s{background:#eafaf1;color:#1e8449;font-size:11px;padding:3px 9px;border-radius:5px;font-weight:600;display:inline-block;}
+.card{background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 20px;margin-bottom:14px;}
+.ctitle{font-size:13px;font-weight:600;color:#666;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+.edit-btn{font-size:11px;color:#2980b9;cursor:pointer;border:1px solid #2980b9;padding:3px 10px;border-radius:5px;background:#fff;}
+.edit-btn:hover{background:#eaf4fb;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{font-size:11px;font-weight:600;color:#aaa;text-align:right;padding:7px 8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;}
+th:first-child{text-align:left;}
+td{padding:9px 8px;text-align:right;border-bottom:1px solid #f8f8f8;white-space:nowrap;}
+td:first-child{text-align:left;font-weight:500;}
+tr:last-child td{border-bottom:none;}
+.bc{display:inline-block;font-size:10px;padding:2px 5px;border-radius:4px;background:#eaf3de;color:#3b6d11;font-weight:500;}
+.bs{display:inline-block;font-size:10px;padding:2px 5px;border-radius:4px;background:#faeeda;color:#854f0b;font-weight:500;}
+input[type=number]{width:88px;border:1px solid #ddd;border-radius:5px;padding:4px 6px;font-size:12px;text-align:right;background:#fffbf0;}
+input[type=number]:focus{outline:none;border-color:#2980b9;}
+.update-row{display:flex;justify-content:flex-end;gap:10px;margin-top:12px;align-items:center;}
+.apply-btn{background:#c0392b;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;}
+.apply-btn:hover{background:#a93226;}
+.ts{font-size:11px;color:#bbb;}
+/* 기록 섹션 */
+.record-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.record-title{font-size:13px;font-weight:600;color:#666;}
+.record-actions{display:flex;gap:8px;align-items:center;}
+.save-btn{background:#27ae60;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+.save-btn:hover{background:#1e8449;}
+.csv-btn{background:#fff;color:#2980b9;border:1px solid #2980b9;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+.csv-btn:hover{background:#eaf4fb;}
+.rec-table th{font-size:11px;}
+.rec-table td{font-size:12px;}
+.del-btn{color:#ddd;border:none;background:none;cursor:pointer;font-size:14px;padding:0 4px;}
+.del-btn:hover{color:#e74c3c;}
+.diff-pos{color:#c0392b;font-size:11px;}
+.diff-neg{color:#2980b9;font-size:11px;}
+.diff-neu{color:#bbb;font-size:11px;}
+.empty-msg{text-align:center;color:#bbb;font-size:13px;padding:24px 0;}
+@media(max-width:700px){.metrics{grid-template-columns:repeat(2,1fr);}.two-col{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<h1>Make5Bil 포트폴리오</h1>
+<p class="sub">수익 목표 1단계: +2억원 &nbsp;|&nbsp; 현재가 수동 업데이트 (추후 API 연동)</p>
+
+<div class="metrics" id="metrics"></div>
+
+<div class="two-col">
+  <div class="panel">
+    <div class="panel-title">수익 목표 달성률 (1단계: +2억)</div>
+    <div class="goal-header">
+      <div class="goal-pct pos" id="goalPct">0%</div>
+      <div class="goal-remain" id="goalRemain"></div>
+    </div>
+    <div class="track"><div class="fill" id="goalBar" style="width:0%;background:#c0392b;"></div></div>
+    <div class="track-labels"><span>0원</span><span id="goalCurrent"></span><span>목표 +2억</span></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">담보유지비율 (전체 기준)</div>
+    <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:2px;">
+      <div class="margin-big" id="marginRatio">0%</div>
+      <div id="marginBadge"></div>
+    </div>
+    <div class="margin-formula" id="marginFormula"></div>
+    <div class="mc-bar-wrap"><div class="mc-bar" id="marginBar" style="width:0%;"></div></div>
+    <div class="levels">
+      <span><span class="dot" style="background:#e74c3c;"></span>위험 &lt;140%</span>
+      <span><span class="dot" style="background:#f39c12;"></span>경고 &lt;160%</span>
+      <span><span class="dot" style="background:#27ae60;"></span>안전 ≥160%</span>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ctitle">
+    종목 상세
+    <button class="edit-btn" onclick="toggleEdit()">현재가 수정</button>
+  </div>
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr><th>종목명</th><th>구분</th><th>수량</th><th>매수단가</th><th>현재가</th><th>투자금액</th><th>평가금액</th><th>수익</th><th>수익률</th><th>비중</th></tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <div class="update-row" id="updateRow" style="display:none;">
+    <span class="ts" id="lastUpdate"></span>
+    <button class="apply-btn" onclick="applyPrices()">현재가 적용</button>
+  </div>
+</div>
+
+<!-- 일별 기록 -->
+<div class="card">
+  <div class="record-header">
+    <div class="record-title">일별 기록</div>
+    <div class="record-actions">
+      <span class="ts" id="recCount"></span>
+      <button class="csv-btn" onclick="exportCSV()">CSV 내보내기</button>
+      <button class="save-btn" onclick="saveRecord()">오늘 기록 저장</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="rec-table">
+      <thead>
+        <tr>
+          <th style="text-align:left;">날짜</th>
+          <th>투자금액</th>
+          <th>총평가금액</th>
+          <th>총수익</th>
+          <th>전일대비</th>
+          <th>수익률</th>
+          <th>예수금</th>
+          <th>담보비율</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="recordBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+var stocks=[
+  {name:'SK하이닉스',       type:'현금', qty:20,   buyPrice:2250000, curPrice:2699000, credit:false},
+  {name:'SK하이닉스',       type:'신용', qty:46,   buyPrice:2144000, curPrice:2699000, credit:true,  loan:98640000},
+  {name:'TIGER SK하닉레버', type:'현금', qty:1664, buyPrice:24290,   curPrice:31325,   credit:false},
+  {name:'삼성전자',         type:'신용', qty:320,  buyPrice:312000,  curPrice:363500,  credit:true,  loan:99940000},
+  {name:'TIGER삼성레버',    type:'현금', qty:3553, buyPrice:24040,   curPrice:27550,   credit:false},
+  {name:'현대차',           type:'신용', qty:162,  buyPrice:617000,  curPrice:606000,  credit:true,  loan:99960000},
+  {name:'현대차',           type:'현금', qty:4,    buyPrice:617000,  curPrice:606000,  credit:false}
+];
+var deposit=49670000, profitGoal=200000000, editMode=false;
+
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtM(n){return fmt(Math.round(n/10000))+'만';}
+function today(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1+'').padStart(2,'0')+'-'+(d.getDate()+'').padStart(2,'0');}
+
+function calcAll(){
+  var te=0,tb=0,totalLoan=0;
+  stocks.forEach(function(s){
+    s.eval=s.qty*s.curPrice; s.buy=s.qty*s.buyPrice;
+    s.profit=s.eval-s.buy; s.rate=(s.profit/s.buy)*100;
+    te+=s.eval; tb+=s.buy;
+    if(s.credit) totalLoan+=s.loan;
+  });
+  stocks.forEach(function(s){s.wt=(s.eval/te)*100;});
+  return {te:te,tb:tb,tp:te-tb,ta:te+deposit,loan:totalLoan};
+}
+
+function renderMetrics(d){
+  var pr=(d.tp/d.tb)*100;
+  var remain=profitGoal-d.tp;
+  var rows=[
+    {l:'총 평가금액',v:fmtM(d.te),s:'투자 '+fmtM(d.tb),c:'neu'},
+    {l:'총 수익',v:(d.tp>=0?'+':'')+fmtM(d.tp),s:(pr>=0?'+':'')+pr.toFixed(1)+'%',c:d.tp>=0?'pos':'neg'},
+    {l:'예수금',v:fmtM(deposit),s:'총자산 '+fmtM(d.ta),c:'neu'},
+    {l:'수익 목표까지',v:remain>0?fmtM(remain):'달성!',s:'목표 +'+fmtM(profitGoal),c:remain>0?'neu':'pos'}
+  ];
+  document.getElementById('metrics').innerHTML=rows.map(function(r){
+    return '<div class="metric"><div class="ml">'+r.l+'</div><div class="mv '+r.c+'">'+r.v+'</div><div class="ms">'+r.s+'</div></div>';
+  }).join('');
+}
+
+function renderGoal(d){
+  var pct=(d.tp/profitGoal)*100;
+  document.getElementById('goalPct').textContent=pct.toFixed(1)+'%';
+  document.getElementById('goalBar').style.width=Math.max(0,Math.min(pct,100))+'%';
+  var remain=profitGoal-d.tp;
+  document.getElementById('goalRemain').innerHTML='목표까지<br><strong>'+(remain>0?'+'+fmtM(remain):'달성!')+'</strong>';
+  document.getElementById('goalCurrent').textContent='현재 +'+fmtM(d.tp);
+}
+
+function renderMargin(d){
+  var ratio=(d.ta/d.loan)*100;
+  var color=ratio<140?'#e74c3c':ratio<160?'#f39c12':'#27ae60';
+  var badgeClass=ratio<140?'badge-d':ratio<160?'badge-w':'badge-s';
+  var label=ratio<140?'위험':ratio<160?'경고':'안전';
+  document.getElementById('marginRatio').textContent=ratio.toFixed(1)+'%';
+  document.getElementById('marginRatio').style.color=color;
+  document.getElementById('marginBadge').innerHTML='<span class="'+badgeClass+'">'+label+'</span>';
+  document.getElementById('marginFormula').innerHTML='(평가 '+fmtM(d.te)+' + 예수금 '+fmtM(deposit)+')<br>÷ 신용융자 '+fmtM(d.loan);
+  document.getElementById('marginBar').style.width=Math.min((ratio/300)*100,100)+'%';
+  document.getElementById('marginBar').style.background=color;
+}
+
+function renderTable(){
+  document.getElementById('tableBody').innerHTML=stocks.map(function(s,i){
+    var sc=s.profit>=0?'pos':'neg',sg=s.profit>=0?'+':'';
+    var pc=editMode?'<input type="number" id="p'+i+'" value="'+s.curPrice+'" step="100"/>':fmt(s.curPrice)+'원';
+    return '<tr><td>'+s.name+'</td><td><span class="'+(s.type==='현금'?'bc':'bs')+'">'+s.type+'</span></td>'
+      +'<td>'+fmt(s.qty)+'</td><td>'+fmt(s.buyPrice)+'원</td><td>'+pc+'</td>'
+      +'<td>'+fmtM(s.buy)+'</td><td>'+fmtM(s.eval)+'</td>'
+      +'<td class="'+sc+'">'+sg+fmtM(s.profit)+'</td>'
+      +'<td class="'+sc+'">'+sg+s.rate.toFixed(1)+'%</td>'
+      +'<td>'+s.wt.toFixed(1)+'%</td></tr>';
+  }).join('');
+}
+
+function toggleEdit(){
+  editMode=!editMode;
+  document.getElementById('updateRow').style.display=editMode?'flex':'none';
+  renderTable();
+}
+
+function applyPrices(){
+  stocks.forEach(function(s,i){var el=document.getElementById('p'+i);if(el)s.curPrice=parseInt(el.value)||s.curPrice;});
+  editMode=false;
+  document.getElementById('updateRow').style.display='none';
+  document.getElementById('lastUpdate').textContent='업데이트: '+new Date().toLocaleTimeString('ko-KR');
+  render();
+}
+
+/* ===== 일별 기록 ===== */
+function loadRecords(){
+  try{return JSON.parse(localStorage.getItem('m5b_records')||'[]');}catch(e){return [];}
+}
+function saveRecords(arr){localStorage.setItem('m5b_records',JSON.stringify(arr));}
+
+function saveRecord(){
+  var d=calcAll();
+  var ratio=(d.ta/d.loan)*100;
+  var pr=(d.tp/d.tb)*100;
+  var rec={
+    date:today(),
+    buy:d.tb, eval:d.te, profit:d.tp,
+    rate:parseFloat(pr.toFixed(2)),
+    deposit:deposit,
+    margin:parseFloat(ratio.toFixed(2))
+  };
+  var arr=loadRecords();
+  // 같은 날짜면 덮어쓰기
+  var idx=arr.findIndex(function(r){return r.date===rec.date;});
+  if(idx>=0){
+    if(!confirm('오늘('+rec.date+') 기록이 이미 있습니다. 덮어쓸까요?'))return;
+    arr[idx]=rec;
+  } else {
+    arr.push(rec);
+  }
+  arr.sort(function(a,b){return b.date.localeCompare(a.date);});
+  saveRecords(arr);
+  renderRecords();
+}
+
+function deleteRecord(date){
+  if(!confirm(date+' 기록을 삭제할까요?'))return;
+  var arr=loadRecords().filter(function(r){return r.date!==date;});
+  saveRecords(arr);
+  renderRecords();
+}
+
+function renderRecords(){
+  var arr=loadRecords();
+  document.getElementById('recCount').textContent=arr.length+'일 기록';
+  if(arr.length===0){
+    document.getElementById('recordBody').innerHTML='<tr><td colspan="9" class="empty-msg">아직 기록이 없습니다. 장 종료 후 "오늘 기록 저장"을 눌러주세요.</td></tr>';
+    return;
+  }
+  document.getElementById('recordBody').innerHTML=arr.map(function(r,i){
+    var prev=arr[i+1];
+    var diff=prev?r.profit-prev.profit:null;
+    var diffHtml='<span class="diff-neu">-</span>';
+    if(diff!==null){
+      var sg=diff>=0?'+':'';
+      diffHtml='<span class="'+(diff>=0?'diff-pos':'diff-neg')+'">'+sg+fmtM(diff)+'</span>';
+    }
+    var mc=r.margin<140?'#e74c3c':r.margin<160?'#f39c12':'#27ae60';
+    var sc=r.profit>=0?'pos':'neg', sg=r.profit>=0?'+':'';
+    return '<tr>'
+      +'<td style="font-weight:600;">'+r.date+'</td>'
+      +'<td>'+fmtM(r.buy)+'</td>'
+      +'<td>'+fmtM(r.eval)+'</td>'
+      +'<td class="'+sc+'">'+sg+fmtM(r.profit)+'</td>'
+      +'<td>'+diffHtml+'</td>'
+      +'<td class="'+sc+'">'+sg+r.rate.toFixed(1)+'%</td>'
+      +'<td>'+fmtM(r.deposit)+'</td>'
+      +'<td style="color:'+mc+';font-weight:600;">'+r.margin.toFixed(1)+'%</td>'
+      +'<td><button class="del-btn" onclick="deleteRecord(\''+r.date+'\')">✕</button></td>'
+      +'</tr>';
+  }).join('');
+}
+
+function exportCSV(){
+  var arr=loadRecords();
+  if(arr.length===0){alert('저장된 기록이 없습니다.');return;}
+  var header='날짜,투자금액,총평가금액,총수익,수익률(%),예수금,담보비율(%)';
+  var rows=arr.map(function(r){
+    return [r.date,Math.round(r.buy/10000),Math.round(r.eval/10000),Math.round(r.profit/10000),r.rate,Math.round(r.deposit/10000),r.margin].join(',');
+  });
+  var csv='\uFEFF'+header+'\n'+rows.join('\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download='make5bil_'+today()+'.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function render(){var d=calcAll();renderMetrics(d);renderGoal(d);renderMargin(d);renderTable();}
+render();
+renderRecords();
+</script>
+</body>
+</html>
