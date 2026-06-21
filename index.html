@@ -52,7 +52,6 @@ input[type=number]:focus{outline:none;border-color:#2980b9;}
 .apply-btn{background:#c0392b;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;}
 .apply-btn:hover{background:#a93226;}
 .ts{font-size:11px;color:#bbb;}
-/* 기록 섹션 */
 .record-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
 .record-title{font-size:13px;font-weight:600;color:#666;}
 .record-actions{display:flex;gap:8px;align-items:center;}
@@ -60,20 +59,19 @@ input[type=number]:focus{outline:none;border-color:#2980b9;}
 .save-btn:hover{background:#1e8449;}
 .csv-btn{background:#fff;color:#2980b9;border:1px solid #2980b9;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;}
 .csv-btn:hover{background:#eaf4fb;}
-.rec-table th{font-size:11px;}
-.rec-table td{font-size:12px;}
 .del-btn{color:#ddd;border:none;background:none;cursor:pointer;font-size:14px;padding:0 4px;}
 .del-btn:hover{color:#e74c3c;}
-.diff-pos{color:#c0392b;font-size:11px;}
-.diff-neg{color:#2980b9;font-size:11px;}
-.diff-neu{color:#bbb;font-size:11px;}
+.diff-pos{color:#c0392b;font-size:11px;} .diff-neg{color:#2980b9;font-size:11px;} .diff-neu{color:#bbb;font-size:11px;}
 .empty-msg{text-align:center;color:#bbb;font-size:13px;padding:24px 0;}
+.notice{background:#fffbf0;border:1px solid #f0e0a0;border-radius:8px;padding:10px 14px;font-size:12px;color:#856404;margin-bottom:14px;}
 @media(max-width:700px){.metrics{grid-template-columns:repeat(2,1fr);}.two-col{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 <h1>Make5Bil 포트폴리오</h1>
-<p class="sub">수익 목표 1단계: +2억원 &nbsp;|&nbsp; 현재가 수동 업데이트 (추후 API 연동)</p>
+<p class="sub">수익 목표 1단계: +2억원 &nbsp;|&nbsp; 업데이트: 2026-06-19</p>
+
+<div class="notice">✅ 2026-06-18 종가 반영 완료 (최신) | 다음 거래일 후 "현재가 수정" 버튼으로 업데이트하세요.</div>
 
 <div class="metrics" id="metrics"></div>
 
@@ -122,7 +120,6 @@ input[type=number]:focus{outline:none;border-color:#2980b9;}
   </div>
 </div>
 
-<!-- 일별 기록 -->
 <div class="card">
   <div class="record-header">
     <div class="record-title">일별 기록</div>
@@ -133,18 +130,12 @@ input[type=number]:focus{outline:none;border-color:#2980b9;}
     </div>
   </div>
   <div style="overflow-x:auto;">
-    <table class="rec-table">
+    <table>
       <thead>
         <tr>
           <th style="text-align:left;">날짜</th>
-          <th>투자금액</th>
-          <th>총평가금액</th>
-          <th>총수익</th>
-          <th>전일대비</th>
-          <th>수익률</th>
-          <th>예수금</th>
-          <th>담보비율</th>
-          <th></th>
+          <th>투자금액</th><th>총평가금액</th><th>총수익</th>
+          <th>전일대비</th><th>수익률</th><th>예수금</th><th>담보비율</th><th></th>
         </tr>
       </thead>
       <tbody id="recordBody"></tbody>
@@ -153,16 +144,22 @@ input[type=number]:focus{outline:none;border-color:#2980b9;}
 </div>
 
 <script>
+// ===== 종목 데이터 (2026-06-19 거래 반영) =====
+// 변경사항:
+// - SK하이닉스 현금 20주 전량 매도 (2,790,000원) → 제거
+// - TIGER SK하이닉스 레버리지: 기존 1,664 + 신규 1,651 = 3,315주 (평균단가 재계산)
+//   평균단가 = (1664*24290 + 1651*33655) / 3315 = (40,418,560 + 55,564,205) / 3315 = 28,937원
 var stocks=[
-  {name:'SK하이닉스',       type:'현금', qty:20,   buyPrice:2250000, curPrice:2699000, credit:false},
-  {name:'SK하이닉스',       type:'신용', qty:46,   buyPrice:2144000, curPrice:2699000, credit:true,  loan:98640000},
-  {name:'TIGER SK하닉레버', type:'현금', qty:1664, buyPrice:24290,   curPrice:31325,   credit:false},
-  {name:'삼성전자',         type:'신용', qty:320,  buyPrice:312000,  curPrice:363500,  credit:true,  loan:99940000},
-  {name:'TIGER삼성레버',    type:'현금', qty:3553, buyPrice:24040,   curPrice:27550,   credit:false},
-  {name:'현대차',           type:'신용', qty:162,  buyPrice:617000,  curPrice:606000,  credit:true,  loan:99960000},
-  {name:'현대차',           type:'현금', qty:4,    buyPrice:617000,  curPrice:606000,  credit:false}
+  {name:'SK하이닉스',        type:'신용', qty:46,   buyPrice:2144000, curPrice:2685000, credit:true,  loan:98640000},
+  {name:'TIGER SK하닉레버',  type:'현금', qty:3315, buyPrice:28937,   curPrice:33290,   credit:false},
+  {name:'삼성전자',          type:'신용', qty:320,  buyPrice:312000,  curPrice:362500,  credit:true,  loan:99940000},
+  {name:'TIGER삼성레버',     type:'현금', qty:3553, buyPrice:24040,   curPrice:26195,   credit:false},
+  {name:'현대차',            type:'신용', qty:162,  buyPrice:617000,  curPrice:601000,  credit:true,  loan:99960000},
+  {name:'현대차',            type:'현금', qty:4,    buyPrice:617000,  curPrice:601000,  credit:false}
 ];
-var deposit=49670000, profitGoal=200000000, editMode=false;
+
+// 예수금: 기존 49,670,000 + 매도대금 55,800,000 - 매수대금 55,564,205 = 49,905,795
+var deposit=49905795, profitGoal=200000000, editMode=false;
 
 function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
 function fmtM(n){return fmt(Math.round(n/10000))+'만';}
@@ -240,44 +237,29 @@ function applyPrices(){
   editMode=false;
   document.getElementById('updateRow').style.display='none';
   document.getElementById('lastUpdate').textContent='업데이트: '+new Date().toLocaleTimeString('ko-KR');
+  document.querySelector('.notice') && (document.querySelector('.notice').style.display='none');
   render();
 }
 
-/* ===== 일별 기록 ===== */
-function loadRecords(){
-  try{return JSON.parse(localStorage.getItem('m5b_records')||'[]');}catch(e){return [];}
-}
+function loadRecords(){try{return JSON.parse(localStorage.getItem('m5b_records')||'[]');}catch(e){return [];}}
 function saveRecords(arr){localStorage.setItem('m5b_records',JSON.stringify(arr));}
 
 function saveRecord(){
   var d=calcAll();
   var ratio=(d.ta/d.loan)*100;
   var pr=(d.tp/d.tb)*100;
-  var rec={
-    date:today(),
-    buy:d.tb, eval:d.te, profit:d.tp,
-    rate:parseFloat(pr.toFixed(2)),
-    deposit:deposit,
-    margin:parseFloat(ratio.toFixed(2))
-  };
+  var rec={date:today(),buy:d.tb,eval:d.te,profit:d.tp,rate:parseFloat(pr.toFixed(2)),deposit:deposit,margin:parseFloat(ratio.toFixed(2))};
   var arr=loadRecords();
-  // 같은 날짜면 덮어쓰기
   var idx=arr.findIndex(function(r){return r.date===rec.date;});
-  if(idx>=0){
-    if(!confirm('오늘('+rec.date+') 기록이 이미 있습니다. 덮어쓸까요?'))return;
-    arr[idx]=rec;
-  } else {
-    arr.push(rec);
-  }
+  if(idx>=0){if(!confirm('오늘('+rec.date+') 기록이 이미 있습니다. 덮어쓸까요?'))return; arr[idx]=rec;}
+  else arr.push(rec);
   arr.sort(function(a,b){return b.date.localeCompare(a.date);});
-  saveRecords(arr);
-  renderRecords();
+  saveRecords(arr); renderRecords();
 }
 
 function deleteRecord(date){
   if(!confirm(date+' 기록을 삭제할까요?'))return;
-  var arr=loadRecords().filter(function(r){return r.date!==date;});
-  saveRecords(arr);
+  saveRecords(loadRecords().filter(function(r){return r.date!==date;}));
   renderRecords();
 }
 
@@ -292,23 +274,14 @@ function renderRecords(){
     var prev=arr[i+1];
     var diff=prev?r.profit-prev.profit:null;
     var diffHtml='<span class="diff-neu">-</span>';
-    if(diff!==null){
-      var sg=diff>=0?'+':'';
-      diffHtml='<span class="'+(diff>=0?'diff-pos':'diff-neg')+'">'+sg+fmtM(diff)+'</span>';
-    }
+    if(diff!==null){var sg=diff>=0?'+':'';diffHtml='<span class="'+(diff>=0?'diff-pos':'diff-neg')+'">'+sg+fmtM(diff)+'</span>';}
     var mc=r.margin<140?'#e74c3c':r.margin<160?'#f39c12':'#27ae60';
-    var sc=r.profit>=0?'pos':'neg', sg=r.profit>=0?'+':'';
-    return '<tr>'
-      +'<td style="font-weight:600;">'+r.date+'</td>'
-      +'<td>'+fmtM(r.buy)+'</td>'
-      +'<td>'+fmtM(r.eval)+'</td>'
-      +'<td class="'+sc+'">'+sg+fmtM(r.profit)+'</td>'
-      +'<td>'+diffHtml+'</td>'
-      +'<td class="'+sc+'">'+sg+r.rate.toFixed(1)+'%</td>'
-      +'<td>'+fmtM(r.deposit)+'</td>'
+    var sc=r.profit>=0?'pos':'neg',sg=r.profit>=0?'+':'';
+    return '<tr><td style="font-weight:600;">'+r.date+'</td><td>'+fmtM(r.buy)+'</td><td>'+fmtM(r.eval)+'</td>'
+      +'<td class="'+sc+'">'+sg+fmtM(r.profit)+'</td><td>'+diffHtml+'</td>'
+      +'<td class="'+sc+'">'+sg+r.rate.toFixed(1)+'%</td><td>'+fmtM(r.deposit)+'</td>'
       +'<td style="color:'+mc+';font-weight:600;">'+r.margin.toFixed(1)+'%</td>'
-      +'<td><button class="del-btn" onclick="deleteRecord(\''+r.date+'\')">✕</button></td>'
-      +'</tr>';
+      +'<td><button class="del-btn" onclick="deleteRecord(\''+r.date+'\')">✕</button></td></tr>';
   }).join('');
 }
 
@@ -316,20 +289,15 @@ function exportCSV(){
   var arr=loadRecords();
   if(arr.length===0){alert('저장된 기록이 없습니다.');return;}
   var header='날짜,투자금액,총평가금액,총수익,수익률(%),예수금,담보비율(%)';
-  var rows=arr.map(function(r){
-    return [r.date,Math.round(r.buy/10000),Math.round(r.eval/10000),Math.round(r.profit/10000),r.rate,Math.round(r.deposit/10000),r.margin].join(',');
-  });
+  var rows=arr.map(function(r){return [r.date,Math.round(r.buy/10000),Math.round(r.eval/10000),Math.round(r.profit/10000),r.rate,Math.round(r.deposit/10000),r.margin].join(',');});
   var csv='\uFEFF'+header+'\n'+rows.join('\n');
   var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url; a.download='make5bil_'+today()+'.csv'; a.click();
-  URL.revokeObjectURL(url);
+  var a=document.createElement('a');a.href=url;a.download='make5bil_'+today()+'.csv';a.click();URL.revokeObjectURL(url);
 }
 
 function render(){var d=calcAll();renderMetrics(d);renderGoal(d);renderMargin(d);renderTable();}
-render();
-renderRecords();
+render();renderRecords();
 </script>
 </body>
 </html>
