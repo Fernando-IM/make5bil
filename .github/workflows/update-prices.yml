@@ -18,20 +18,22 @@ jobs:
           TOSS_CLIENT_SECRET: ${{ secrets.TOSS_CLIENT_SECRET }}
         run: |
           python3 - << 'PYEOF'
-          import urllib.request, urllib.parse, json, re, os, datetime
+          import urllib.request, urllib.parse, json, re, os, datetime, base64
           CLIENT_ID = os.environ['TOSS_CLIENT_ID']
           CLIENT_SECRET = os.environ['TOSS_CLIENT_SECRET']
           BASE = 'https://openapi.tossinvest.com'
           SYMBOLS = {'SK하이닉스':'000660','TIGER SK하닉레버':'0195S0','삼성전자':'005930','TIGER삼성레버':'0195R0','현대차':'005380'}
-          params = urllib.parse.urlencode({'grant_type':'client_credentials','client_id':CLIENT_ID,'client_secret':CLIENT_SECRET}).encode()
-          req = urllib.request.Request(BASE+'/oauth2/token',data=params,headers={'Content-Type':'application/x-www-form-urlencoded'})
+          credentials = base64.b64encode(f'{CLIENT_ID}:{CLIENT_SECRET}'.encode()).decode()
+          params = urllib.parse.urlencode({'grant_type':'client_credentials'}).encode()
+          req = urllib.request.Request(BASE+'/oauth2/token',data=params,headers={'Content-Type':'application/x-www-form-urlencoded','Authorization':'Basic '+credentials})
           with urllib.request.urlopen(req) as r:
-            token = json.loads(r.read())['access_token']
-          print('토큰 발급 완료')
+            resp = json.loads(r.read())
+          print('토큰 응답:', json.dumps(resp,ensure_ascii=False)[:200])
+          token = resp['access_token']
           req2 = urllib.request.Request(BASE+'/api/v1/stocks?symbols='+','.join(SYMBOLS.values()),headers={'Authorization':'Bearer '+token})
           with urllib.request.urlopen(req2) as r:
             price_data = json.loads(r.read())
-          print('시세 응답:',json.dumps(price_data,ensure_ascii=False)[:300])
+          print('시세 응답:', json.dumps(price_data,ensure_ascii=False)[:300])
           items = price_data.get('stocks') or price_data.get('data') or price_data
           price_map = {}
           if isinstance(items,list):
@@ -39,7 +41,7 @@ jobs:
               sym = item.get('symbol') or item.get('ticker')
               price = item.get('currentPrice') or item.get('price') or item.get('tradePrice') or item.get('closePrice')
               if sym and price: price_map[sym]=int(price)
-          print('가격:',price_map)
+          print('가격:', price_map)
           with open('index.html','r',encoding='utf-8') as f: html=f.read()
           rev = {v:k for k,v in SYMBOLS.items()}
           updated=[]
@@ -47,10 +49,11 @@ jobs:
             name=rev.get(sym,sym)
             new_html,n=re.subn(rf"(name:'{re.escape(name)}'[^}}]+curPrice:)\d+",rf'\g<1>{price}',html)
             if n>0: html=new_html; updated.append(f'{name}:{price:,}'); print(f'  {name} -> {price:,}')
+            else: print(f'  ⚠️ {name} 패턴 미매칭')
           kst=datetime.datetime.utcnow()+datetime.timedelta(hours=9)
           html=re.sub(r'\d{4}-\d{2}-\d{2}[^<"]*',kst.strftime('%Y-%m-%d %H:%M KST 자동갱신'),html,count=1)
           with open('index.html','w',encoding='utf-8') as f: f.write(html)
-          print('완료:',', '.join(updated))
+          print('완료:', ', '.join(updated))
           PYEOF
 
       - name: Commit & Push
