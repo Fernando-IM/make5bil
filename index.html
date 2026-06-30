@@ -73,7 +73,7 @@ input[type=number]{width:88px;border:1px solid #ddd;border-radius:5px;padding:4p
 <h1>Make5Bil 포트폴리오</h1>
 
 <div class="topbar">
-  <div class="topbar-left">수익 목표 1단계: +2억원 &nbsp;|&nbsp; <span id="lastUpdateLabel">2026-06-20 시세 기준</span></div>
+  <div class="topbar-left">수익 목표 1단계: +2억원 &nbsp;|&nbsp; <span id="lastUpdateLabel">2026-06-25 시세 기준 (수동 입력)</span></div>
   <div class="toss-wrap">
     <button class="toss-btn" id="tossBtn" onclick="fetchTossPrices()">⚡ 토스증권 시세 자동갱신</button>
     <span class="toss-status" id="tossStatus"></span>
@@ -152,12 +152,12 @@ input[type=number]{width:88px;border:1px solid #ddd;border-radius:5px;padding:4p
 
 <script>
 var stocks=[
-  {name:'SK하이닉스',       type:'신용', qty:46,   buyPrice:2144000, curPrice:2908000, credit:true,  loan:98640000},
-  {name:'TIGER SK하닉레버', type:'현금', qty:3315, buyPrice:28937,   curPrice:36840,   credit:false},
-  {name:'삼성전자',         type:'신용', qty:320,  buyPrice:312000,  curPrice:355500,  credit:true,  loan:99940000},
-  {name:'TIGER삼성레버',    type:'현금', qty:3553, buyPrice:24040,   curPrice:26410,   credit:false},
-  {name:'현대차',           type:'신용', qty:162,  buyPrice:617000,  curPrice:586000,  credit:true,  loan:99960000},
-  {name:'현대차',           type:'현금', qty:4,    buyPrice:617000,  curPrice:586000,  credit:false}
+  {name:'SK하이닉스',       type:'신용', qty:46,   buyPrice:2144000, curPrice:2664000, credit:true,  loan:98640000},
+  {name:'TIGER SK하닉레버', type:'현금', qty:4031, buyPrice:30598,   curPrice:29140,   credit:false},
+  {name:'삼성전자',         type:'신용', qty:320,  buyPrice:312000,  curPrice:335000,  credit:true,  loan:99940000},
+  {name:'TIGER삼성레버',    type:'현금', qty:4453, buyPrice:24701,   curPrice:22590,   credit:false},
+  {name:'현대차',           type:'신용', qty:162,  buyPrice:617000,  curPrice:495500,  credit:true,  loan:99960000},
+  {name:'현대차',           type:'현금', qty:4,    buyPrice:617000,  curPrice:495500,  credit:false}
 ];
 var deposit=49905795, profitGoal=200000000, editMode=false;
 
